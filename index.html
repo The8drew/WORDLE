@@ -6,11 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WORDLE</title>
     <link rel="icon" href="./logo.png">
+    <script type="module" src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons/ionicons.esm.js"></script>
 </head>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Megrim&family=Oswald&family=Poppins:wght@300&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap');
         
+        :root {
+        --max: 100vh;
+        --navbar: 55px;
+        --green: #70bdb9;
+        --yellow: #ffd54a;
+        --black: #454545;
+        --white: #fcfcfc;
+        --gray: #e8e8e8;
+        --gray2: #e0e0e0;
+        --gray3: #f1f1f1;
+        --border: #bebebe;
+        --gap: 9px;
+        }
+
+        :root.black {
+            --black: #e6e6e6;
+            --white: #222222;
+            --gray: #2d2d2d;
+            --gray2: #383838;
+            --gray3: #4f4f4f;
+            --border: #343434;
+        }
+
         *{
             padding: 0;
             margin: 0;
@@ -18,46 +42,56 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        #maincontainer{
-            background-color: rgb(232, 232, 232);
-            width: 100vw;
+        body{
+            display: flex;
+            justify-content: center;
             height: 100vh;
+            width: 100vw;
+        }
+
+        #maincontainer{
+            background-color: var(--gray);
+            width: 100%;
+            max-width: var(--max);
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            position: relative;
         }
 
-        #stback{
-            width: 100vw;
-            height: 100vh;
+        #opacityscreen{
+            width: 100%;
+            height: 100%;
             position: fixed;
             background-color: #00000056;
             transition: 0.3s;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        #stback.hidden{visibility: hidden; opacity: 0;}
-        #stback.show{visibility: visible; opacity: 1;}
+        #opacityscreen.hidden{visibility: hidden; opacity: 0;}
+        #opacityscreen.show{visibility: visible; opacity: 1;}
 
         #stcontainer{
-            z-index: 30;
-            width: 80vw;
+            z-index: 3;
+            width: 80%;
+            max-width: calc(var(--max) * 80 / 100);
             height: 420px;
-            background-color: rgb(241, 241, 241);
+            background-color: var(--gray3);
             border-radius: 10px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #454545;
+            color: var(--black);
             transition:  0.3s;
         }
 
-        #stcontainer.hidden{transform: translate(-50%, calc(-50% + 100px)); opacity: 0;}
-        #stcontainer.show{transform: translate(-50%, -50%); opacity: 1;}
+        #stcontainer.hidden{transform: translate(0, 50%); opacity: 0;}
+        #stcontainer.show{transform: translate(0, 0); opacity: 1;}
 
         #stclose{
             position: absolute;
@@ -66,42 +100,250 @@
             font-size: 1.5em;
         }
 
+        #sttitle{
+            margin-top: 20px;
+            font-size: 1.5rem;
+        }
+
         #stp{
             width: 70%;
-            height: 70px;
+            line-height: 3ch;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 3em;
-            color: #454545;
+            font-size: 2rem;
+            color: var(--black);
         }
 
         #stothers{
-            border-top: #454545 solid 1px;
-            width: 70%;
-            height: 50%;
+            border-top: var(--black) solid 1px;
+            width: calc(100% - 60px);
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
-            color: #454545;
+            color: var(--black);
         }
 
         .stparameters{
-            font-size: 1.1em;
+            font-size: 0.8rem;
             display: flex;
+            line-height: 1.5rem;
             justify-content: space-between;
-            color: #454545;
+            color: var(--black);
+            padding-left: 2ch;
+            padding-right: 2ch;
         }
 
+        .stparameters:nth-child(even){
+            background-color: var(--gray);
+        }
+
+        #graphic{
+            width: calc(100% - 60px);
+            height: 150px;
+            margin: 15px;
+            margin-bottom: calc(15px + 20px);
+            padding-top: 20px;
+            border: var(--black) solid 1px;
+            border-top: none;
+            border-right: none;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-evenly;
+        }
+
+        .col{
+            width: 10px;
+            height: 100%;
+            background-color: var(--green);
+            position: relative;
+        }
+
+        .col::before{
+            content: attr(state);
+            width: 10px;
+            height: 20px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: -20px;
+            left: 0;
+            font-weight: bold;
+            color: var(--green);
+        }
+
+        .col::after{
+            content: attr(id);
+            width: 10px;
+            height: 20px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            bottom: -25px;
+            left: 0;
+            font-weight: bold;
+            color: var(--black);
+        }
+
+        #confcontainer{
+            z-index: 2;
+            width: 200px;
+            height: 50px;
+            background-color: var(--gray3);
+            opacity: 0.9;
+            color: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            border: var(--border) solid 1px;
+            border-radius: 5px;
+            margin: 5px;
+            position: absolute;
+            top: var(--navbar);
+            left: 0;
+            transition: 0.3s;
+        }
+
+        #confcontainer.hidden{transform: translate(50%, 0); opacity: 0;}
+        #confcontainer.show{transform: translate(0, 0); opacity: 0.9;}
+
+        #confcontainer > div{
+            height: 2em;
+        }
+
+        #obtions{
+            position: absolute;
+            border: var(--border) solid 1px;
+            border-radius: 5px;
+            background-color: var(--gray3);
+            opacity: 0.9;
+            width: 100%;
+            height: 130px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            top: 60px;
+            left: 0;
+            padding: 10px;
+            transition: 0.3s;
+        }
+
+        #obtions.hidden{transform: translate(0, 50%); opacity: 0; visibility: hidden;}
+        #obtions.show{transform: translate(0, 0); opacity: 1; visibility: visible;}
+
+        input[type="checkbox"]{
+            position: relative;
+            width: 35px;
+            height: 20px;
+            -webkit-appearance: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        input[type="checkbox"]:checked{
+            background-color: var(--green);
+        }
+
+        input[type="checkbox"]::before{
+            content: " ";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            transform: scale(1.1);
+            top: 0;
+            left: 0;
+            background-color: var(--white);
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        input[type="checkbox"]:checked::before{
+            left: 15px;
+        }
+
+        input[type="color"]{
+            width: 2em;
+            height: 2em;
+            border: none;
+            background-color: transparent;
+        }
+
+        input[type="submit"]{
+            color: var(--black);
+            background-color: var(--white);
+            opacity: 100;
+            border-radius: 10px;
+            border: var(--border) solid 1px;
+        }
+
+        
+        #theme{
+            position: absolute;
+            border: var(--border) solid 1px;
+            border-radius: 5px;
+            background-color: var(--gray3);
+            opacity: 0.9;
+            width: 100%;
+            height: 170px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            top: 60px;
+            left: 0;
+            padding: 14px;
+            transition: 0.3s;
+        }
+
+        #theme.hidden{transform: translate(0, 50%); opacity: 0; visibility: hidden;}
+        #theme.show{transform: translate(0, 0); opacity: 1; visibility: visible;}
+
+        #theme > div{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .off{
+            color: var(--black);
+        }
+
+        .off.on{
+            color: var(--green);
+        }
+        
+        .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--gray2);
+        overflow: hidden;
+        }
+
+        .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--white);
+        cursor: pointer;
+        box-shadow: -407px 0 0 400px var(--green);
+        }
+
+
         #navbar{
-            background-color: #70bdb9;
-            color: white;
+            background-color: var(--green);
+            color: var(--white);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 12px;
-            width: 100vw;
-            height: 55px;
+            width: 100%;
+            height: var(--navbar);
         }
 
         #title{
@@ -118,46 +360,76 @@
             font-size: 2em;
         }
 
-        #container{
-            border-radius: 4px;
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 9px;
-            padding: 9px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .box{
-            background-color: rgb(254, 254, 254);
-            color: #454545;
-            width: 15vw;
-            height: 15vw;
-            border-radius: 3px;
-            border: #cecece solid 1px;
+        #center_sec{
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Lora', serif;
-            font-size: 2.25rem;
-            transition: 0.2s;
+        }
+
+        #container{
+            border-radius: 4px;
+            display: grid;
+            grid-gap: var(--gap);
+            padding: 8px;
+            perspective: 700px;
+        }
+
+        .box{
+            z-index: 4;
+            background-color: var(--white);
+            color: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: 0.5s;
         }
 
         .box.win{
-            transform: scale(1.4) rotateX(90deg);
+            transform: translateZ(70px) rotateX(360deg);
+        }
+
+        .box.type{
+            animation: plot 0.6s;
+        }
+
+        @keyframes plot{
+            0% { transform: translateY(-15px) scale(1.2); border: var(--green) solid 3px; color: var(--green);}
         }
 
         .box.reload{
             transform: scale(0);
         }
 
+        .box.incorrect{
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake{
+            0%   { transform: translateX(1px) }
+            10%  { transform: translateX(-1px) }
+            20%  { transform: translateX(-10px) }
+            30%  { transform: translateX(1px) }
+            40%  { transform: translateX(10px) }
+            50%  { transform: translateX(-1px) }
+            60%  { transform: translateX(-10px) }
+            70%  { transform: translateX(1px) }
+            80%  { transform: translateX(10px) }
+            90%  { transform: translateX(-1px) }
+            100% { transform: translateX(1px) }
+        }
+
         #keyboard{
-            width: 100vw;
-            background-color: rgb(205 205 205);
+            width: 100%;
+            background-color: var(--gray2);
             display: grid;
             grid-template-columns: repeat(10, 1fr);
             gap: 5px;
-            padding: 15px;
+            padding: 10px;
         }
 
         .kbutton{
@@ -166,9 +438,9 @@
             font-weight: 600;
             border: none;
             border-radius: 3px;
-            background-color: rgb(250, 250, 250);
-            color: rgb(69, 69, 69);
-            transition: 0.2s;
+            background-color: var(--white);
+            color: var(--black);
+            transition: 0.5s;
         }
 
         .kbutton.click{
@@ -180,41 +452,99 @@
             font-size: 2rem;
         }
 
+        .alert {
+            position: fixed;
+            top: calc(var(--navbar) + 15px);
+            min-width: 7rem;
+            width: fit-content;
+            padding: 2ch;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: var(--gray3) solid 2px;
+            border-radius: 5px;
+            background-color: var(--white);
+            color: var(--black);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
     </style>
 <body>
     <div id="maincontainer">
-        <div id="stback" class="hidden">
+        <div id="opacityscreen" class="hidden">
             <div id="stcontainer" class="hidden">
-                <ion-icon name="close" id="stclose" onclick="stclose()">x</ion-icon>
+                <ion-icon name="close" id="stclose" onclick="stopenclose()">x</ion-icon>
                 <h1 id="sttitle">{ Statistics } </h1>
                 <h1 id="stp">0%</h1>
                 <div id="stothers">
                     <div class="stparameters">Played<span id="stplayed">0</span></div>
                     <div class="stparameters">Wins<span id="stwins">0</span></div>
-                    <div class="stparameters">Loses<span id="stloses">0</span></div>
                     <div class="stparameters">Current Streak<span id="stcurrent">0</span></div>
                     <div class="stparameters">Max Streak<span id="ststreak">0</span></div>
                 </div>
+                <div id="graphic"></div>
             </div>
         </div>
-        <div id="navbar">
-            <ion-icon name="refresh" onclick="reload()"></ion-icon>
+        <div id="confcontainer" class="hidden">
+            <ion-icon class="off" name="refresh" onclick="reload(true, false, true)"></ion-icon>
+            <div>
+                <ion-icon class="off" name="contrast" id="contrast"></ion-icon>
+                    <div id="theme" class="hidden">
+                        <div>
+                            <span>Darkmode</span>
+                            <input type="checkbox" id="darkmode">
+                        </div>
+                        <div>
+                            <span>Color 1</span>
+                            <input type="color" value="#70bdb9" id="color1">
+                        </div>
+                        <div>
+                            <span>Color 2</span>
+                            <input type="color" value="#ffd54a" id="color2">
+                        </div>
+                        <input type="submit" onclick="color()">
+                    </div>
+            </div>
+            <div>
+                <ion-icon class="off" name="options" id="obtionsico"></ion-icon>
+                    <div id="obtions" class="hidden">
+                        <span>
+                            leters  <span id="leters">5</span>
+                            <input value="5" type="range" step="1" min="3" max="9" class="slider" onchange="reset()" id="leter">
+                        </span>
+                        <span>
+                            chances  <span id="chances">6</span>
+                            <input value="6" type="range" step="1" min="3" max="9" class="slider" onchange="reset()" id="chance">
+                        </span>
+                    </div>
+            </div>
+            <div>
+                <ion-icon class="off" name="help-circle-outline"></ion-icon>
+            </div>
+        </div>
+        <div id="navbar">    
+            <div id="navbartools">
+                <ion-icon name="more" id="more"></ion-icon>
+            </div>
             <h2 id="title">WORDLE</h2>
             <div id="navbartools">
                 <ion-icon name="attach" onclick="copy()"></ion-icon>
                 <ion-icon name="stats" onclick="statistics()"></ion-icon>
             </div>
         </div>
-        <div id="container"></div>
+        <div id="center_sec">
+            <div id="container"></div>
+        </div>
         <div id="keyboard"></div>
     </div>
-    <script src="./wordlist.js"></script>
+    <script src="./word_list.js"></script>
     <script>
         //statistics parameters
         const span_stp = document.querySelector("#stp")
         const span_played = document.querySelector("#stplayed")
         const span_wins = document.querySelector("#stwins")
-        const span_loses = document.querySelector("#stloses")
         const span_current_streak = document.querySelector("#stcurrent")
         const span_streak = document.querySelector("#ststreak")
 
@@ -226,38 +556,105 @@
         
 
         let running = true
-        const rows = 6
-        const columns = 5
+        let rows = 6
+        let columns = 5
+        const state_list = []
+
+        for(let i = 0; i < 9; i++){
+            state_list.push({ave : 0, total: 0})
+        }
+
+        let cword = ""
+        function create_word(){
+            while (true) {
+                w = word_list[Math.floor(Math.random()*word_list.length)]
+                if (w.length == columns){
+                    cword = w;
+                    break
+                }else{
+                    continue
+                }
+            }
+        }
+        create_word();
+        
+        function declare_css_variables(v){
+            let sec = document.querySelector("#center_sec");
+            gap = (Math.min(sec.clientWidth/columns, sec.clientHeight/rows))/10
+            let s_width = (sec.clientWidth - (gap*(columns) + 10)) / columns;
+            let s_height = (sec.clientHeight - (gap*(rows) + 10)) / rows;
+            document.querySelectorAll(".box").forEach(x => {
+                new_size = v*((Math.min(s_width, s_height)))
+                x.style.setProperty("width", new_size+"px")
+                x.style.setProperty("height", new_size+"px")
+                x.style.setProperty("font-size", (new_size*0.6)+"px")
+                document.querySelector(':root').style.setProperty("--gap", gap+"px")
+            })
+        }
+
+        window.addEventListener("resize",() => {
+            declare_css_variables(0.4);
+            setTimeout(() => {
+                declare_css_variables(1);
+            }, 300);
+        })
+
+        window.onload = ()=>{
+            declare_css_variables(1);
+            for(let i = 0; i < 9; i++){
+                new_div = document.createElement("div");
+                new_div.setAttribute("class", "col")
+                new_div.setAttribute("state", 0)
+                new_div.setAttribute("id", `${i + 1}`)
+                document.querySelector("#graphic").appendChild(new_div);
+            }
+        }
+
         const container = document.querySelector("#container");
         const keyboard = document.querySelector("#keyboard");
-        const keyboard_array = "qwertyuiopasdfghjklñ↵zxcvbnm-";
-        function createGrid(){
+
+        const keyboard_array = "qwertyuiopasdfghjklñ↵zxcvbnm«";
+        function createGrid(r, c){
             let array = []
-            for(let i = 0; i < 6; i++){
+            for(let i = 0; i < r; i++){
                 array.push([])
-                for(let e = 0; e < 5; e++){
+                for(let e = 0; e < c; e++){
                     array[i].push({value: "", state: "n"})//state n / is / right / wrong
                 }
             }
             return array
         }
-        let level_set = createGrid()    
+
+        let level_set = createGrid(rows, columns)    
         let level = 0
         let word = []
 
 
-        for(let i = 0; i < rows * columns; i++){
-            new_div = document.createElement("div");
-            new_div.setAttribute("class", "box")
-            new_div.classList.add(i)
-            container.appendChild(new_div);
+        function create_boxes(){
+            index = 0
+            container.innerHTML = ""
+            for(let i = 0; i < rows; i++){
+                for(let e = 0; e < columns; e++){
+                    new_div = document.createElement("div");
+                    new_div.setAttribute("class", "box")
+                    new_div.classList.add(index)
+                    new_div.classList.add("line"+i)
+                    new_div.setAttribute("id", `${i}${e}`)
+                    container.appendChild(new_div);
+                    setTimeout(() => {
+                        declare_css_variables(1);
+                    }, 3);
+                    index ++;
+                }
+            }
+            container.style.setProperty("grid-template-columns","repeat("+columns+", 1fr)")
         }
-        container.style.setProperty("grid-template-columns","repeat("+columns+", 1fr)")
+
+        create_boxes()
 
         for(let i = 0; i < keyboard_array.length; i++){
             new_button = document.createElement("button");
             new_button.innerText = keyboard_array[i];
-            new_button.setAttribute("data-key", keyboard_array[i]);
             new_button.setAttribute("id", "b"+ keyboard_array[i]);
             new_button.setAttribute("class", "kbutton");
             keyboard.appendChild(new_button);
@@ -269,15 +666,36 @@
                 setTimeout(() => {
                     x.classList.toggle("click");
                 }, 100);
-                if (word.length < 5 && running) {
+                if (x == document.querySelector("#b«") && running){
+                    word.pop()
+                }else if (word.length < columns && running) {
                     word.push(x.innerText)
-                    fillblank()
-                    draw()
+                    animate_single_box("type", `${level}${word.length-1}`)
                 }
+                fillblank()
+                draw()
             }
         });
 
         document.querySelector("#b↵").onclick = () => {
+            submit()
+        }
+
+        function set_state(r, c){
+            item = state_list[c-1]
+            item.total ++;
+            item.ave = (((item.ave * (item.total - 1)) + level)/(item.total)).toFixed(1)
+            for(let i = 0; i < 9; i++){
+                document.querySelectorAll(".col")[i].setAttribute("state", state_list[i].ave)
+            }
+        }
+
+        function set_alert(l){
+            if(l <= 2){show_alert("Are you a Wizard?", 2000, 0);}
+            else if(l > 3 || l <= (rows-1)){show_alert("Magnificent!!!", 2000, 0);}
+            else{show_alert("That was close :O", 2000, 0);}
+        }
+        function submit(){
             if (running){
                 if (word.length == columns) {
                     CheckWord(word)
@@ -287,10 +705,11 @@
                 if (!running){
                     set_parameters(true);
                     animate_box("win");
-                }
-                if (level == 6 && running){
+                    set_alert(level);
+                    set_state(rows, columns);
+                }else if (level == rows){
                     setTimeout(()=>{
-                        alert("The word is " + cword)  
+                        show_alert("The word is " + cword, 4000, 0);
                     }, 500)       
                     set_parameters(false);  
                     running = false;   
@@ -298,33 +717,28 @@
             }
         }
 
-        document.querySelector("#b-").onclick = () => {
-            if (word.length > 0){
-                word.pop()
-                fillblank()
-                draw()
-            }
-        }
 
         function CheckWord(array){
             if (word_list.includes(array.join(""))){
-                for(let i = 0; i < 5; i++){
+                for(let i = 0; i < columns; i++){
                     leter = array[i]
                     button = document.querySelector("#b"+ array[i])
                     if (leter == cword[i]){
                         level_set[level][i].state = "r"
+                        set_style(button,"var(--green)","var(--white)")
                     }else if (cword.includes(leter)){
                         level_set[level][i].state = "i"
+                        set_style(button,"var(--yellow)","var(--white)")
                     }else{
                         level_set[level][i].state = "w"
-                        set_style(button,"#454545","#fcfcfc")
+                        set_style(button,"var(--black)","var(--white)")
                     }
                 }
                 level ++;
             }else{
-                alert("WORDLE does not recognize this word")
-                for(let i = 0; i < 5; i++){
-                    level_set.level[level][i].value = ""
+                animate_byclass("incorrect", ".line"+level, 0)
+                for(let i = 0; i < columns; i++){
+                    level_set[level][i].value = ""
                 }
             }
             if (array.join("") == cword){
@@ -339,15 +753,47 @@
                 }, 50*x.classList[1]);
                 setTimeout(() => {
                     x.classList.toggle(c);
-                }, (50*x.classList[1])+500)
+                }, (50*x.classList[1]) + 500)
+            })
+        }
+
+        function animate_byclass(c, l, every){
+            document.querySelectorAll(l).forEach(x => {
+                setTimeout(() => {
+                    x.classList.toggle(c);
+                }, 50*(x.classList[1])*every);
+                setTimeout(() => {
+                    x.classList.toggle(c);
+                }, (50*(x.classList[1]))*every + 500)
+            })
+        }
+
+        function animate_single_box(c, i){
+            setTimeout(() => {
+                document.getElementById(i).classList.toggle(c)
+            }, 50);
+            setTimeout(() => {
+                document.getElementById(i).classList.toggle(c)
+            }, 500);
+        }
+
+        function animate_kys_clean(){
+            document.querySelectorAll(".box").forEach(x => {
+                setTimeout(() => {
+                    set_style(x,"var(--white)","var(--black)");
+                    x.innerText = ""
+                }, 50*x.classList[1] + 200);
+            })
+            document.querySelectorAll(".kbutton").forEach(x => {
+                set_style(x,"var(--white)","var(--black)")
             })
         }
 
 
         function draw(){
             itr = 0
-            for(let i = 0; i < 6; i++){
-                for(let e = 0; e < 5; e++){
+            for(let i = 0; i < rows; i++){
+                for(let e = 0; e < columns; e++){
                     box = document.querySelectorAll(".box")[itr]
                 
                     box.innerText = level_set[i][e].value
@@ -359,17 +805,17 @@
         }
 
         function set_color(state){
-            b = "#fcfcfc"
-            f = "#454545"
+            b = "var(--white)"
+            f = "var(--black)"
             if (state == "r"){
-                b = "#70bdb9"
-                f = "#fcfcfc"
+                b = "var(--green)"
+                f = "var(--white)"
             }else if (state == "i"){
-                b = "#ffe44c"
-                f = "#fcfcfc"
+                b = "var(--yellow)"
+                f = "var(--white)"
             }else if (state == "w"){
-                b = "#454545"
-                f = "#fcfcfc"
+                b = "var(--black)"
+                f = "var(--white)"
             }
             set_style(box, b, f)
         }
@@ -380,11 +826,10 @@
         }
 
         function fillblank(){
-            for (let i = 0; i < 5; i++){
+            for (let i = 0; i < columns; i++){
+                r = word[i]
                 if (word[i] == undefined){
                     r = ""
-                }else{
-                    r = word[i]
                 }
                 level_set[level][i].value = r
             }
@@ -396,7 +841,6 @@
                 wins ++;
                 current_streak ++;
             }else{
-                loses ++;
                 current_streak = 0;
             }
             if (current_streak > streak){
@@ -404,30 +848,52 @@
             }
         }
 
-        const reload = ()=> {
+        const reload = (anim, create, leave)=> {
+            if (leave){onremove("#more", "#confcontainer")}
             running = true;
-            level_set =  createGrid();
+            level_set = createGrid(rows, columns);
+            if (create){
+                create_boxes();
+            }
             level = 0
             word = []
-            cword = word_list[Math.floor(Math.random()*word_list.length)]
-            animate_box("reload");
-            document.querySelectorAll(".box").forEach(x => {
-                setTimeout(() => {
-                    set_style(x,"#fcfcfc","#454545");
-                    x.innerText = ""
-                }, 50*x.classList[1]);
-            })
-            document.querySelectorAll(".kbutton").forEach(x => {
-                set_style(x,"#fcfcfc","#454545")
-            })
+            create_word()
+            if (anim){animate_box("reload");}
+            animate_kys_clean();
+        }
+
+        let dm = false
+        document.querySelector("#darkmode").onclick = ()=>{
+            dm = !dm;
+        }
+
+        const color = ()=> {
+            let css = document.querySelector(":root")
+            color1 = document.querySelector("#color1").value
+            color2 = document.querySelector("#color2").value
+            css.style.setProperty("--green", color1)
+            css.style.setProperty("--yellow", color2)
+            if (dm){
+                css.classList.add("black");
+            }else{
+                css.classList.remove("black");
+            }
+        }
+
+        const reset = ()=> {
+            rows = document.querySelector("#chance").value;
+            columns = document.querySelector("#leter").value;
+            document.querySelector("#chances").innerText = rows;
+            document.querySelector("#leters").innerText = columns;
+            reload(false, true, false);
         }
 
         const copy = ()=> {
             emo = ["🟩","🟨","⬛","⬜"]
             let text = []
             let extra = 0
-            for(let i = 0; i < 6; i++){
-                for(let e = 0; e < 5; e++){
+            for(let i = 0; i < rows; i++){
+                for(let e = 0; e < columns; e++){
                     state = level_set[i][e].state
                     if (state == "r"){
                         text.push(emo[0])
@@ -439,15 +905,16 @@
                         text.push(emo[3])
                     }
 
-                    if ((text.length - extra) % 5 == 0){
+                    if ((text.length - extra) % columns == 0){
                         text.push("\n")
                         extra ++
                     }
                 }
             }
             let ftext = text.join("");
-            navigator.clipboard.writeText(ftext);
-            alert("copied in clipboard!!!")
+            if (running){state = "stuck"}else{state = "win"}
+            navigator.clipboard.writeText(`${ftext}\nWordle : ${level}/${rows}\nState : ${state}`);
+            show_alert("copied in clipboard", 1000, 0)
         }
 
         const statistics = ()=> {
@@ -458,18 +925,74 @@
             }
             span_played.innerText = played
             span_wins.innerText = wins
-            span_loses.innerText = loses
             span_current_streak.innerText = current_streak
             span_streak.innerText = streak
-            stclose();
+            col_list = document.querySelectorAll(".col")
+            col_list.forEach(col=>{
+                col.style.setProperty("height", `calc(${col.getAttribute("state")/9} * 100%)`)
+            })
+            stopenclose();
+        }
+
+        function show_alert(message, time, delay){
+            alrt = document.createElement("div")
+            alrt.innerText = message
+            alrt.classList.add("alert")
+            setTimeout(() => {
+                document.body.appendChild(alrt)
+                setTimeout(() => {
+                    document.body.removeChild(alrt)
+                }, time);
+            }, delay);
         }
         
-        const stclose = ()=> {
-            document.querySelector("#stback").classList.toggle("show");
+        const stopenclose = ()=> {
+            document.querySelector("#opacityscreen").classList.toggle("show");
             document.querySelector("#stcontainer").classList.toggle("show");
+        }
+        
+        function onshow(btn,trg){
+            document.querySelector(btn).classList.toggle("on")
+            document.querySelector(trg).classList.toggle("show")
+        }
+
+        function onremove(btn, trg){
+            document.querySelector(btn).classList.remove("on")
+            document.querySelector(trg).classList.remove("show")
+        }
+
+        document.querySelector("#more").onclick = () => { 
+            onshow("#more", "#confcontainer")
+        }
+
+        document.querySelector("#contrast").onclick = () => { 
+            onshow("#contrast", "#theme")
+            onremove("#obtionsico", "#obtions")
+        }
+
+        document.querySelector("#obtionsico").onclick = () => { 
+            onshow("#obtionsico", "#obtions")
+            onremove("#contrast", "#theme")
+        }
+
+
+        document.body.onkeydown = (e)=> {
+            key = e.key
+            if (running) {
+                if (key == "Backspace"){
+                    word.pop()
+                    fillblank()
+                }else if((key == "Enter")){
+                    submit()
+                }else if(word.length < columns && keyboard_array.includes(key)){
+                    word.push(key)
+                    animate_single_box("type", `${level}${word.length-1}`)
+                    fillblank()
+                }
+                draw()
+            }
         }
 
     </script>
-    <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
 </body>
 </html>
